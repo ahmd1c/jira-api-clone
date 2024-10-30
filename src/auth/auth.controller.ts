@@ -1,4 +1,11 @@
-import { Controller, Post, Body, UseGuards, Res } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Res,
+  HttpCode,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register-dto';
 import { Public } from './decorators/public-decorator';
@@ -22,6 +29,7 @@ export class AuthController {
   @Public()
   @UseGuards(LocalGuard)
   @Post('/login')
+  @HttpCode(200)
   login(@User() user, @Res({ passthrough: true }) res: Response) {
     return this.authService.login(user, res);
   }

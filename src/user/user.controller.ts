@@ -19,6 +19,7 @@ import { QueryDto } from 'utils/query-prepare';
 import { OwnerOrAdminGuard } from './guards/owner-guard';
 import User from 'src/auth/decorators/user-decorator';
 import { ChangePasswordDto } from './dto/change-password-dto';
+import { AcceptInviteDto } from './dto/accept-invitation-dto';
 
 @Controller('users')
 export class UserController {
@@ -30,9 +31,10 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
-  @Post('/accept-invitation')
-  acceptInvitation(@Body('inviteToken') inviteToken: string) {
-    return this.userService.acceptInvitation(inviteToken);
+  @UseGuards(OwnerOrAdminGuard)
+  @Post(':id/accept-invitation')
+  acceptInvitation(@Body() acceptInviteDto: AcceptInviteDto) {
+    return this.userService.acceptInvitation(acceptInviteDto.inviteToken);
   }
 
   @Allowed(UserRole.ADMIN)
@@ -57,10 +59,9 @@ export class UserController {
     };
   }
 
-  @UseGuards(OwnerOrAdminGuard)
   @Patch('change-password')
   async changePassword(
-    @Body('password') changePasswordDto: ChangePasswordDto,
+    @Body() changePasswordDto: ChangePasswordDto,
     @User() user,
   ) {
     const result = await this.userService.changePassword(

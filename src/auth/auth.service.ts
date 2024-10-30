@@ -49,15 +49,22 @@ export class AuthService {
   async registerWithInvitation(registerDto: RegisterDto, res: Response) {
     const { email, inviteToken } = registerDto;
 
-    const { invitedEmail, workspaceId, role } =
-      await this.workspaceService.validateInviteToken(inviteToken);
+    const {
+      email: invitedEmail,
+      workspaceId,
+      role,
+    } = await this.workspaceService.validateInviteToken(inviteToken);
 
-    if (email !== invitedEmail) {
+    if (email && email !== invitedEmail) {
       throw new BadRequestException('Email does not match');
     }
     const workspace = await this.workspaceService.findOne(workspaceId);
 
-    const user = await this.userService.create(registerDto);
+    const user = await this.userService.create({
+      name: registerDto.name,
+      password: registerDto.password,
+      email: invitedEmail,
+    });
     this.workspaceService.addUser(workspace, user, role);
 
     await this.userService.save(user);

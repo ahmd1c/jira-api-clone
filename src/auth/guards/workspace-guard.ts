@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+} from '@nestjs/common';
 import { UserRole } from 'src/workspace/entities/user-workspace.entity';
 import { WorkspaceService } from 'src/workspace/workspace.service';
 
@@ -9,13 +14,18 @@ export class WorkspaceGuard implements CanActivate {
   async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
-    const workspaceId = request.params.workspaceId;
+    const workspaceId = +request.params?.workspaceId;
+
+    if (isNaN(workspaceId)) {
+      throw new BadRequestException('workspaceId must be a valid number');
+    }
 
     const member = await this.workspaceService.getWorkspaceUser(
       workspaceId,
       user.id,
     );
-    if (!member.role) return false;
+
+    if (!member?.role) return false;
     user.workspaceRole = member.role;
     return true;
   }

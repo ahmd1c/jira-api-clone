@@ -9,6 +9,9 @@ import {
   UseGuards,
   ParseEnumPipe,
   ParseIntPipe,
+  HttpCode,
+  Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { WorkspaceService } from './workspace.service';
 import { WorkspaceDto } from './dto/workspace.dto';
@@ -21,7 +24,7 @@ import {
 } from 'src/auth/guards/workspace-guard';
 import { InviteUserDto } from './dto/invite-user-dto';
 
-@Controller('companies/:companyId/workspaces')
+@Controller('workspaces')
 export class WorkspaceController {
   constructor(private readonly workspaceService: WorkspaceService) {}
 
@@ -29,7 +32,7 @@ export class WorkspaceController {
   @Post()
   async create(
     @Body() workspaceDto: WorkspaceDto,
-    @Param('companyId', ParseIntPipe) companyId: number,
+    @Query('companyId', ParseIntPipe) companyId: number,
     @User() user,
   ) {
     const workspace = await this.workspaceService.create(
@@ -42,7 +45,7 @@ export class WorkspaceController {
 
   @UseGuards(CompanyOwnerGuard)
   @Get()
-  findAll(@Param('companyId', ParseIntPipe) companyId: number) {
+  findAll(@Query('companyId', ParseIntPipe) companyId: number) {
     return this.workspaceService.getAllWorkspacesInCompany(companyId);
   }
 
@@ -79,23 +82,24 @@ export class WorkspaceController {
     };
   }
 
-  @UseGuards(WorkspaceGuard, WorkspaceAdminGuard)
-  @Post(':workspaceId/users/invite')
-  async addUserToWorkspace(
-    inviteUserDto: InviteUserDto,
-    @Param('workspaceId') workspaceId: string,
-  ) {
-    return this.workspaceService.inviteUser(inviteUserDto, +workspaceId);
+  @UseGuards(WorkspaceGuard)
+  @Get(':workspaceId/users')
+  getWorkspaceUsers(@Param('workspaceId') workspaceId: string) {
+    return this.workspaceService.getWorkspaceUsers(+workspaceId);
   }
 
   @UseGuards(WorkspaceGuard, WorkspaceAdminGuard)
-  @Patch(':workspaceId/users/:userId/change-role')
-  async changeUserRole(
-    @Body('newRole', new ParseEnumPipe(UserRole)) newRole: UserRole,
+  @Post(':workspaceId/users/invite')
+  @HttpCode(200)
+  async addUserToWorkspace(
+    @Body() inviteUserDto: InviteUserDto,
     @Param('workspaceId') workspaceId: string,
-    @Param('userId') userId: string,
   ) {
-    return this.workspaceService.changeUserRole(+workspaceId, +userId, newRole);
+    const token = await this.workspaceService.inviteUser(
+      inviteUserDto,
+      +workspaceId,
+    );
+    return { token };
   }
 
   @UseGuards(WorkspaceGuard, WorkspaceAdminGuard)
@@ -103,7 +107,44 @@ export class WorkspaceController {
   async removeUser(
     @Param('workspaceId') workspaceId: string,
     @Param('userId') userId: string,
+    @User() user,
   ) {
-    return this.workspaceService.removeUser(+workspaceId, +userId);
+    const result = await this.workspaceService.removeUser(
+      +workspaceId,
+      +userId,
+      user,
+    );
+    return {
+      message: result ? 'User removed successfully' : 'User not found',
+      status: result ? 'success' : 'fail',
+    };
+  }
+
+  @UseGuards(WorkspaceGuard, WorkspaceAdminGuard)
+  @Patch(':workspaceId/users/:userId/change-role')
+  async changeUserRole(
+    @Body(
+      'newRole',
+      new ParseEnumPipe(UserRole, {
+        exceptionFactory(error) {
+          throw new BadRequestException('newRole should be USER OR ADMIN');
+        },
+      }),
+    )
+    newRole: UserRole,
+    @Param('workspaceId') workspaceId: string,
+    @Param('userId') userId: string,
+    @User() user,
+  ) {
+    const result = await this.workspaceService.changeUserRole(
+      +workspaceId,
+      +userId,
+      newRole,
+      user,
+    );
+    return {
+      message: result ? 'User role changed successfully' : 'User not found',
+      status: result ? 'success' : 'fail',
+    };
   }
 }

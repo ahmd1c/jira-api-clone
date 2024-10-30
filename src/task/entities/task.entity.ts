@@ -73,13 +73,16 @@ export class Task extends BaseEntity {
   @ManyToOne(() => Task, {
     nullable: true,
     cascade: [Cascade.ALL],
-    serializer: (value, _) => value?.id || null,
+    inversedBy: 'children',
+    // serializer: (value, _) => value?.id || null,
   })
   parent?: Task;
 
   @OneToMany(() => Task, (task) => task.parent, {
-    serializer: (value, _) =>
-      value.isInitialized() ? value.getIdentifiers() : [],
+    // serializer: (value, _) => {
+    //   return value.toArray() || [];
+    // },
+    mappedBy: 'parent',
   })
   children = new Collection<Task>(this);
 

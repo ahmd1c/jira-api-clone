@@ -20,12 +20,13 @@ export class CompanyOwnerGuard implements CanActivate {
       arg?.hasOwnProperty('companyId'),
     )?.companyId;
 
-    if (!companyId && !req.params?.companyId) {
+    if (!companyId && !req.params?.companyId && !req.query?.companyId) {
       throw new BadRequestException('Company id must be provided');
     }
 
     return (
-      req.user.company?.id === parseInt(companyId || req.params?.companyId)
+      req.user.company?.id ===
+      parseInt(companyId || req.params?.companyId || req.query?.companyId)
     );
   }
 }

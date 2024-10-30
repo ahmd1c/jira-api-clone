@@ -13,6 +13,7 @@ export class CreateUserDto {
   @Length(3, 50)
   name: string;
 
+  @ValidateIf((o) => !o.inviteToken || (o.inviteToken && o.email))
   @IsNotEmpty()
   @IsEmail()
   @Length(8, 50)

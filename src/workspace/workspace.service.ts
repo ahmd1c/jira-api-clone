@@ -13,6 +13,7 @@ import { InviteUserDto } from './dto/invite-user-dto';
 import { User } from 'src/user/entities/user.entity';
 import { Company } from 'src/company/entities/company.entity';
 import { CompanyService } from 'src/company/company.service';
+import { RequestUser } from 'types';
 
 @Injectable()
 export class WorkspaceService {
@@ -30,6 +31,8 @@ export class WorkspaceService {
     owner: User,
   ) {
     let { name, company } = workspaceDto;
+
+    if (!company) throw new BadRequestException('Company is required');
 
     // create workspace for already exist company or as a part of company creation
     if (typeof company === 'number') {
@@ -70,14 +73,69 @@ export class WorkspaceService {
     return inviteToken;
   }
 
-  async changeUserRole(workspaceId: number, userId: number, newRole: UserRole) {
+  async changeUserRole(
+    workspaceId: number,
+    userId: number,
+    newRole: UserRole,
+    user: RequestUser,
+  ) {
+    if (!userId || isNaN(userId)) {
+      throw new BadRequestException('User id is required');
+    }
+
+    const userWorkspace = await this.getWorkspaceUser(workspaceId, userId);
+
+    if (!userWorkspace) {
+      throw new BadRequestException('User not found in workspace');
+    }
+
+    if (userWorkspace.role === newRole) {
+      throw new BadRequestException('User already has this role');
+    }
+
+    if (userWorkspace.role === UserRole.ADMIN) {
+      const companyOwner = await this.getWorkspaceOwner(workspaceId);
+
+      if (companyOwner.id === userId) {
+        throw new BadRequestException('Company owner role cannot be changed');
+      }
+
+      if (!companyOwner || companyOwner.id !== user.id) {
+        throw new BadRequestException(
+          'Only company owner can change admin role',
+        );
+      }
+    }
+
     return this.userWorkspaceRepo.nativeUpdate(
       { workspace: workspaceId, user: userId },
       { role: newRole },
     );
   }
 
-  removeUser(workspaceId: number, userId: number) {
+  async removeUser(workspaceId: number, userId: number, user: RequestUser) {
+    if (!userId || isNaN(userId)) {
+      throw new BadRequestException('User id is required');
+    }
+
+    const userWorkspace = await this.getWorkspaceUser(workspaceId, userId);
+
+    if (!userWorkspace) {
+      throw new BadRequestException('User not found in workspace');
+    }
+
+    if (userWorkspace.role === UserRole.ADMIN) {
+      const companyOwner = await this.getWorkspaceOwner(workspaceId);
+
+      if (companyOwner.id === userId) {
+        throw new BadRequestException('Company owner cannot be removed');
+      }
+
+      if (!companyOwner || companyOwner.id !== user.id) {
+        throw new BadRequestException('Only company owner can remove admin');
+      }
+    }
+
     return this.userWorkspaceRepo.nativeDelete({
       workspace: workspaceId,
       user: userId,
@@ -96,13 +154,17 @@ export class WorkspaceService {
       },
       { fields: ['role'] },
     );
-    if (!userWorkspace) {
-      throw new BadRequestException('User not found in workspace');
-    }
     return userWorkspace;
   }
 
+  getWorkspaceUsers(workspaceId: number) {
+    return this.userWorkspaceRepo.find({ workspace: workspaceId });
+  }
+
   getAllWorkspacesInCompany(companyId: number) {
+    if (!companyId) {
+      throw new BadRequestException('Company id is required');
+    }
     return this.workspaceRepo.findAll({
       where: { company: { id: companyId } },
       orderBy: { createdAt: 'DESC' },
@@ -133,5 +195,16 @@ export class WorkspaceService {
     } catch (error) {
       throw new BadRequestException('Invalid invite token');
     }
+  }
+
+  async getWorkspaceOwner(workspaceId: number) {
+    const workspace = await this.workspaceRepo.findOne(workspaceId, {
+      fields: ['company.owner.id'],
+      populate: ['company.owner.id'],
+    });
+    if (!workspace) {
+      throw new NotFoundException('Workspace not found');
+    }
+    return workspace.company.owner;
   }
 }

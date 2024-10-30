@@ -45,6 +45,10 @@ export class TaskService {
       if (parent.status === TASK_STATUS.DONE) {
         throw new BadRequestException('Parent task is already done');
       }
+      if (parent.type === TASK_TYPE.SUB_TASK) {
+        throw new BadRequestException('sub task cannot be parent task');
+      }
+      createTaskDto.type = TASK_TYPE.SUB_TASK;
     }
 
     const data = {
@@ -68,16 +72,25 @@ export class TaskService {
   }
 
   findOne(id: number) {
-    return this.taskRepo.findOne(id);
+    return this.taskRepo.findOne(id, {
+      populate: [
+        'assignee',
+        'reporter',
+        'parent',
+        'children',
+        'dependencies',
+        'dependents',
+      ],
+    });
   }
 
   async update(id: number, updateTaskDto: UpdateTaskDto, user: RequestUser) {
-    const task = await this.getTaskWithReporterPermission(id, user);
+    const task = await this.checkTaskReporterPermission(id, user);
     return this.taskRepo.nativeUpdate(task.id, updateTaskDto);
   }
 
   async remove(id: number, user: RequestUser) {
-    const task = await this.getTaskWithReporterPermission(id, user);
+    const task = await this.checkTaskReporterPermission(id, user);
     return this.taskRepo.nativeDelete(task.id);
   }
 
@@ -169,6 +182,8 @@ export class TaskService {
       workspaceId,
       assigneeId,
     );
+    if (!user) throw new BadRequestException('User not found in workspace');
+
     return this.taskRepo.nativeUpdate(taskId, { assignee: assigneeId });
   }
 
@@ -177,7 +192,7 @@ export class TaskService {
     taskId: number,
     user: RequestUser,
   ) {
-    const task = await this.getTaskWithAssigneePermission(taskId, user);
+    const task = await this.checkTaskAssigneePermission(taskId, user);
 
     if (task.status === statusDto.status) return true;
 
@@ -192,7 +207,7 @@ export class TaskService {
     return this.taskRepo.nativeUpdate(taskId, { status: statusDto.status });
   }
 
-  private async getTaskWithAssigneePermission(id: number, user: RequestUser) {
+  private async checkTaskAssigneePermission(id: number, user: RequestUser) {
     const task = await this.taskRepo.findOne(id, {
       fields: ['assignee.id', 'status', 'id', 'workspace.id'],
     });
@@ -207,7 +222,7 @@ export class TaskService {
     return task;
   }
 
-  private async getTaskWithReporterPermission(id: number, user: RequestUser) {
+  private async checkTaskReporterPermission(id: number, user: RequestUser) {
     const task = await this.taskRepo.findOne(id, { fields: ['reporter.id'] });
 
     if (!task) throw new NotFoundException('Task not found');
@@ -293,7 +308,7 @@ export class TaskService {
         fromTask.status === TASK_STATUS.DONE ||
         toTask.status === TASK_STATUS.DONE
       ) {
-        throw new BadRequestException('Both tasks cannot be done');
+        throw new BadRequestException('Both tasks are already done');
       }
 
       if (toTask.priority === PRIORITY.HIGH) {

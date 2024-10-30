@@ -61,8 +61,18 @@ export class UserService {
       throw new BadRequestException('Workspace does not exist!');
     }
 
-    this.workspaceService.addUser(workspace, user, role);
+    const userWorkspaceExists = await this.workspaceService.getWorkspaceUser(
+      workspaceId,
+      user.id,
+    );
+
+    if (userWorkspaceExists) {
+      throw new BadRequestException('User already exists in workspace!');
+    }
+
+    const userWorkspace = this.workspaceService.addUser(workspace, user, role);
     await this.save(user as User);
+    return userWorkspace;
   }
 
   async findAll(queryString?: QueryDto) {
