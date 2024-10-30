@@ -11,3 +11,8 @@ export class LinkTaskDto {
   @IsEnum(TASK_DEPENDENCY_TYPE)
   type: TASK_DEPENDENCY_TYPE;
 }
+
+export class UpdateLinkTaskDto {
+  @IsEnum(TASK_DEPENDENCY_TYPE)
+  type: TASK_DEPENDENCY_TYPE;
+}

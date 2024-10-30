@@ -660,10 +660,11 @@
       "schema": "public",
       "indexes": [
         {
-          "keyName": "task_dependency_from_task_id_to_task_id_unique",
+          "keyName": "task_dependency_from_task_id_to_task_id_type_unique",
           "columnNames": [
             "from_task_id",
-            "to_task_id"
+            "to_task_id",
+            "type"
           ],
           "composite": true,
           "constraint": true,

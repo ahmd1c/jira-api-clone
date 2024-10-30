@@ -10,7 +10,7 @@ export enum TASK_DEPENDENCY_TYPE {
 }
 
 @Entity()
-@Unique({ properties: ['fromTask', 'toTask'] })
+@Unique({ properties: ['fromTask', 'toTask', 'type'] })
 export class TaskDependency extends BaseEntity {
   @ManyToOne(() => Task, {
     deleteRule: 'cascade',

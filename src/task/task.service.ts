@@ -18,7 +18,8 @@ import { RequestUser } from 'types';
 import { applyCustomQuery } from 'utils/apply-custom-query';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { WorkspaceService } from 'src/workspace/workspace.service';
-import { LinkTaskDto } from './dto/link-task-dto';
+import { LinkTaskDto, UpdateLinkTaskDto } from './dto/link-task-dto';
+import { TaskStatusDto } from './dto/task-status-dto';
 
 @Injectable()
 export class TaskService {
@@ -49,6 +50,26 @@ export class TaskService {
         throw new BadRequestException('sub task cannot be parent task');
       }
       createTaskDto.type = TASK_TYPE.SUB_TASK;
+    }
+
+    if (assigneeId) {
+      const assignee = await this.workspaceService.getWorkspaceUser(
+        workspaceId,
+        assigneeId,
+      );
+      if (!assignee) {
+        throw new NotFoundException('Assignee not found in workspace');
+      }
+
+      if (assignee.role === UserRole.ADMIN) {
+        const companyOwner =
+          await this.workspaceService.getWorkspaceOwner(workspaceId);
+        if (companyOwner?.id !== user.id) {
+          throw new UnauthorizedException(
+            'Only company owner can assign tasks to admin',
+          );
+        }
+      }
     }
 
     const data = {
@@ -85,12 +106,21 @@ export class TaskService {
   }
 
   async update(id: number, updateTaskDto: UpdateTaskDto, user: RequestUser) {
-    const task = await this.checkTaskReporterPermission(id, user);
-    return this.taskRepo.nativeUpdate(task.id, updateTaskDto);
+    const task = await this.getTaskWithReporterPermission(id, user);
+    const data = {
+      ...updateTaskDto,
+    };
+    if (
+      task.type === TASK_TYPE.SUB_TASK &&
+      updateTaskDto.type === TASK_TYPE.TASK
+    ) {
+      data['parent'] = null;
+    }
+    return this.taskRepo.nativeUpdate(task.id, data);
   }
 
   async remove(id: number, user: RequestUser) {
-    const task = await this.checkTaskReporterPermission(id, user);
+    const task = await this.getTaskWithReporterPermission(id, user);
     return this.taskRepo.nativeDelete(task.id);
   }
 
@@ -125,12 +155,35 @@ export class TaskService {
     return taskDependency;
   }
 
+  async getLinking(id: number) {
+    return this.taskDependencyRepo.findOne(id, {
+      populate: ['fromTask', 'toTask'],
+    });
+  }
+
+  async getAllTaskLinksInWorkspace(workspaceId: number) {
+    return this.taskDependencyRepo.find(
+      {
+        fromTask: { workspace: { id: workspaceId } },
+        toTask: { workspace: { id: workspaceId } },
+      },
+      {
+        populate: [
+          'fromTask.workspace.id',
+          'fromTask.title',
+          'toTask.title',
+          'toTask.workspace.id',
+        ],
+      },
+    );
+  }
+
   async updateTaskLink(
     id: number,
-    linkTaskDto: LinkTaskDto,
+    linkTaskDto: UpdateLinkTaskDto,
     user: RequestUser,
   ) {
-    const { fromTaskId, toTaskId, type } = linkTaskDto;
+    const { type } = linkTaskDto;
     const taskDependency = await this.taskDependencyRepo.findOne(id, {
       populate: ['fromTask', 'toTask'],
     });
@@ -140,8 +193,6 @@ export class TaskService {
     const { fromTask, toTask } = taskDependency;
     this.validateTaskLink(fromTask, toTask, type, user);
     return this.taskDependencyRepo.nativeUpdate(id, {
-      fromTask: fromTaskId,
-      toTask: toTaskId,
       type,
     });
   }
@@ -188,26 +239,27 @@ export class TaskService {
   }
 
   async changeTaskStatus(
-    statusDto: { status: TASK_STATUS },
+    statusDto: TaskStatusDto,
     taskId: number,
     user: RequestUser,
   ) {
-    const task = await this.checkTaskAssigneePermission(taskId, user);
+    const task = await this.getTaskWithAssigneePermission(taskId, user);
 
     if (task.status === statusDto.status) return true;
-
     switch (statusDto.status) {
       case TASK_STATUS.DONE:
         await this.validateDoneStatus(taskId, task.workspace.id);
+        console.log('validating done status...');
         break;
       case TASK_STATUS.IN_PROGRESS:
         await this.validateInProgressStatus(task.workspace.id);
+        console.log('validating in progress status...');
         break;
     }
     return this.taskRepo.nativeUpdate(taskId, { status: statusDto.status });
   }
 
-  private async checkTaskAssigneePermission(id: number, user: RequestUser) {
+  private async getTaskWithAssigneePermission(id: number, user: RequestUser) {
     const task = await this.taskRepo.findOne(id, {
       fields: ['assignee.id', 'status', 'id', 'workspace.id'],
     });
@@ -222,8 +274,10 @@ export class TaskService {
     return task;
   }
 
-  private async checkTaskReporterPermission(id: number, user: RequestUser) {
-    const task = await this.taskRepo.findOne(id, { fields: ['reporter.id'] });
+  private async getTaskWithReporterPermission(id: number, user: RequestUser) {
+    const task = await this.taskRepo.findOne(id, {
+      fields: ['reporter.id', 'type'],
+    });
 
     if (!task) throw new NotFoundException('Task not found');
     if (
@@ -237,9 +291,10 @@ export class TaskService {
 
   private async isBlockedTask(taskId: number, workspaceId: number) {
     const dependencies = await this.taskDependencyRepo.find({
-      toTask: { id: taskId, workspace: { id: workspaceId } },
+      toTask: taskId,
       type: TASK_DEPENDENCY_TYPE.BLOCKS,
     });
+    console.log(dependencies);
     if (!dependencies.length) return false;
     return dependencies.some((dep) => dep.fromTask.status !== TASK_STATUS.DONE);
   }
@@ -260,6 +315,8 @@ export class TaskService {
   }
 
   private async validateDoneStatus(taskId: number, workspaceId: number) {
+    console.log('inside validate done .....................................');
+
     if (await this.isBlockedTask(taskId, workspaceId)) {
       throw new BadRequestException('Task is blocked');
     }
@@ -273,6 +330,8 @@ export class TaskService {
   }
 
   private async validateInProgressStatus(workspaceId: number) {
+    console.log('inside validate in progress ..........................');
+
     const highPriorityTasks = await this.getHighPriorityTasks(workspaceId);
     if (highPriorityTasks.length) {
       throw new BadRequestException(
@@ -308,7 +367,7 @@ export class TaskService {
         fromTask.status === TASK_STATUS.DONE ||
         toTask.status === TASK_STATUS.DONE
       ) {
-        throw new BadRequestException('Both tasks are already done');
+        throw new BadRequestException('either one or both tasks are done');
       }
 
       if (toTask.priority === PRIORITY.HIGH) {

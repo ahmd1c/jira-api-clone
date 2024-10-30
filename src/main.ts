@@ -5,6 +5,7 @@ import { JwtGuard } from './auth/guards/jwt-guard';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
+import { UniqueConstraintExceptionFilter } from 'utils/unique-violation.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -31,6 +32,7 @@ async function bootstrap() {
       },
     }),
   );
+  app.useGlobalFilters(new UniqueConstraintExceptionFilter());
   await app.listen(3000);
   if (module.hot) {
     module.hot.accept();

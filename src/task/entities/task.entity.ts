@@ -86,19 +86,9 @@ export class Task extends BaseEntity {
   })
   children = new Collection<Task>(this);
 
-  @OneToMany(
-    () => TaskDependency,
-    (taskDependency) => taskDependency.fromTask,
-    {
-      serializer: (value, _) =>
-        value.isInitialized() ? value.getIdentifiers() : [],
-    },
-  )
+  @OneToMany(() => TaskDependency, (taskDependency) => taskDependency.fromTask)
   dependencies = new Collection<Task>(this);
 
-  @OneToMany(() => TaskDependency, (taskDependency) => taskDependency.toTask, {
-    serializer: (value, _) =>
-      value.isInitialized() ? value.getIdentifiers() : [],
-  })
+  @OneToMany(() => TaskDependency, (taskDependency) => taskDependency.toTask)
   dependents = new Collection<Task>(this);
 }

@@ -9,19 +9,19 @@ import {
   ParseIntPipe,
   UseGuards,
   Query,
+  NotFoundException,
 } from '@nestjs/common';
-import { TaskService } from './task.service';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
+import { TaskService } from '../task.service';
+import { CreateTaskDto } from '../dto/create-task.dto';
+import { UpdateTaskDto } from '../dto/update-task.dto';
 import User from 'src/auth/decorators/user-decorator';
-import { AssignTaskDto } from './dto/assign-task-dto';
-import { TaskStatusDto } from './dto/task-status-dto';
+import { AssignTaskDto } from '../dto/assign-task-dto';
+import { TaskStatusDto } from '../dto/task-status-dto';
 import {
   WorkspaceAdminGuard,
   WorkspaceGuard,
 } from 'src/auth/guards/workspace-guard';
 import { QueryDto } from 'utils/query-prepare';
-import { LinkTaskDto } from './dto/link-task-dto';
 
 @UseGuards(WorkspaceGuard)
 @Controller('workspaces/:workspaceId/tasks')
@@ -38,16 +38,20 @@ export class TaskController {
   }
 
   @Get()
-  findAll(
+  async findAll(
     @Param('workspaceId', ParseIntPipe) workspaceId: number,
     @Query() queryObj?: QueryDto,
   ) {
-    return this.taskService.findAll({ ...queryObj, workspaceId });
+    const tasks = await this.taskService.findAll({ ...queryObj, workspaceId });
+    if (!tasks.data?.length) throw new NotFoundException('Tasks not found');
+    return tasks;
   }
 
   @Get(':taskId')
-  findOne(@Param('taskId') taskId: string) {
-    return this.taskService.findOne(+taskId);
+  async findOne(@Param('taskId') taskId: string) {
+    const task = await this.taskService.findOne(+taskId);
+    if (!task) throw new NotFoundException('Task not found');
+    return task;
   }
 
   @Patch(':taskId')
@@ -103,37 +107,6 @@ export class TaskController {
     );
     return {
       message: result ? 'Task status updated successfully' : 'Task not found',
-      status: result ? 'success' : 'fail',
-    };
-  }
-
-  @Post('/dependencies')
-  linkTasks(
-    @Body() linkTaskDto: LinkTaskDto,
-    @User() user,
-    @Param('workspaceId', ParseIntPipe) workspaceId: number,
-  ) {
-    return this.taskService.createTaskLink(linkTaskDto, user, workspaceId);
-  }
-
-  @Patch('/dependencies/:id')
-  async updateTaskLink(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() linkTaskDto: LinkTaskDto,
-    @User() user,
-  ) {
-    const result = await this.taskService.updateTaskLink(id, linkTaskDto, user);
-    return {
-      message: result ? 'linke updated successfully' : 'Link not found',
-      status: result ? 'success' : 'fail',
-    };
-  }
-
-  @Delete('/dependencies/:id')
-  async removeTaskLink(@Param('id', ParseIntPipe) id: number, @User() user) {
-    const result = await this.taskService.removeTaskLink(id, user);
-    return {
-      message: result ? 'Link deleted successfully' : 'Link not found',
       status: result ? 'success' : 'fail',
     };
   }
