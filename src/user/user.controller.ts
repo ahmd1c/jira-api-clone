@@ -25,12 +25,6 @@ import { AcceptInviteDto } from './dto/accept-invitation-dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Allowed(UserRole.ADMIN)
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
-  }
-
   @UseGuards(OwnerOrAdminGuard)
   @Post(':id/accept-invitation')
   acceptInvitation(@Body() acceptInviteDto: AcceptInviteDto) {
