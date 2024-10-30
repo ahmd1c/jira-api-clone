@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext } from '@nestjs/common';
-import { UserRole } from 'src/workspace/entities/user-workspace.entity';
+import { UserRole } from 'src/constants';
 
 export class OwnerOrAdminGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {

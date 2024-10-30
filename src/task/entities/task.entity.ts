@@ -10,24 +10,7 @@ import { BaseEntity } from 'src/base.entity';
 import { User } from 'src/user/entities/user.entity';
 import { TaskDependency } from './task-dependency.entity';
 import { Workspace } from 'src/workspace/entities/workspace.entity';
-
-export enum TASK_STATUS {
-  TO_DO = 'TO_DO',
-  IN_PROGRESS = 'IN_PROGRESS',
-  DONE = 'DONE',
-}
-
-export enum PRIORITY {
-  HIGH = 'HIGH',
-  MEDIUM = 'MEDIUM',
-  LOW = 'LOW',
-}
-
-export enum TASK_TYPE {
-  BUG = 'BUG',
-  TASK = 'TASK',
-  SUB_TASK = 'SUB_TASK',
-}
+import { TASK_STATUS, PRIORITY, TASK_TYPE } from 'src/constants';
 
 @Entity()
 export class Task extends BaseEntity {

@@ -8,12 +8,15 @@ import {
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { EntityRepository } from '@mikro-orm/postgresql';
-import { PRIORITY, Task, TASK_STATUS, TASK_TYPE } from './entities/task.entity';
+import { Task } from './entities/task.entity';
+import { TaskDependency } from './entities/task-dependency.entity';
 import {
+  UserRole,
+  TASK_STATUS,
+  TASK_TYPE,
   TASK_DEPENDENCY_TYPE,
-  TaskDependency,
-} from './entities/task-dependency.entity';
-import { UserRole } from 'src/workspace/entities/user-workspace.entity';
+  PRIORITY,
+} from 'src/constants';
 import { RequestUser } from 'types';
 import { applyCustomQuery } from 'utils/apply-custom-query';
 import { InjectRepository } from '@mikro-orm/nestjs';
@@ -87,6 +90,11 @@ export class TaskService {
   }
 
   findAll(queryDto?: QueryDto & { workspaceId: number }) {
+    if (queryDto?.fields?.length) {
+      queryDto.fields = queryDto.fields.filter((field) => {
+        return Task.prototype.hasOwnProperty(field);
+      });
+    }
     return applyCustomQuery(queryDto, this.taskRepo, {
       workspace: queryDto.workspaceId,
     });

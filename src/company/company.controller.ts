@@ -12,7 +12,7 @@ import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { Allowed } from 'src/auth/decorators/allowed-decorator';
-import { UserRole } from 'src/workspace/entities/user-workspace.entity';
+import { UserRole } from 'src/constants';
 import { WorkspaceService } from 'src/workspace/workspace.service';
 import { CompanyOwnerGuard } from 'src/auth/guards/company-owner-guard';
 

@@ -5,16 +5,12 @@ import {
   OneToMany,
   OneToOne,
   Property,
-  wrap,
 } from '@mikro-orm/core';
 import { BaseEntity } from 'src/base.entity';
 import { Company } from 'src/company/entities/company.entity';
-import { TaskDependency } from 'src/task/entities/task-dependency.entity';
+import { UserRole } from 'src/constants';
 import { Task } from 'src/task/entities/task.entity';
-import {
-  UserRole,
-  UserWorkspace,
-} from 'src/workspace/entities/user-workspace.entity';
+import { UserWorkspace } from 'src/workspace/entities/user-workspace.entity';
 import { Workspace } from 'src/workspace/entities/workspace.entity';
 
 @Entity()

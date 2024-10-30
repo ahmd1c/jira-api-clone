@@ -5,15 +5,16 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { WorkspaceDto } from './dto/workspace.dto';
-import { EntityRepository, MikroORM } from '@mikro-orm/postgresql';
+import { EntityRepository } from '@mikro-orm/postgresql';
 import { Workspace } from './entities/workspace.entity';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { UserRole, UserWorkspace } from './entities/user-workspace.entity';
+import { UserWorkspace } from './entities/user-workspace.entity';
 import { InviteUserDto } from './dto/invite-user-dto';
 import { User } from 'src/user/entities/user.entity';
 import { Company } from 'src/company/entities/company.entity';
 import { CompanyService } from 'src/company/company.service';
 import { RequestUser } from 'types';
+import { UserRole } from 'src/constants';
 
 @Injectable()
 export class WorkspaceService {

@@ -14,7 +14,7 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Allowed } from 'src/auth/decorators/allowed-decorator';
-import { UserRole } from 'src/workspace/entities/user-workspace.entity';
+import { UserRole } from 'src/constants';
 import { QueryDto } from 'utils/query-prepare';
 import { OwnerOrAdminGuard } from './guards/owner-guard';
 import User from 'src/auth/decorators/user-decorator';

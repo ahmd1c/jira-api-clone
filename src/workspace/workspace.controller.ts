@@ -16,7 +16,7 @@ import {
 import { WorkspaceService } from './workspace.service';
 import { WorkspaceDto } from './dto/workspace.dto';
 import User from 'src/auth/decorators/user-decorator';
-import { UserRole } from './entities/user-workspace.entity';
+import { UserRole } from 'src/constants';
 import { CompanyOwnerGuard } from 'src/auth/guards/company-owner-guard';
 import {
   WorkspaceAdminGuard,

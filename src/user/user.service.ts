@@ -77,6 +77,12 @@ export class UserService {
 
   async findAll(queryString?: QueryDto) {
     if (!queryString) return applyCustomQuery({ limit: 20 }, this.userRepo);
+    if (queryString?.fields?.length) {
+      queryString.fields = queryString.fields.filter((field) => {
+        if (field === 'password') return false;
+        return User.prototype.hasOwnProperty(field);
+      });
+    }
     return applyCustomQuery(queryString, this.userRepo);
   }
 

@@ -1,4 +1,3 @@
-import { WorkspaceService } from './../workspace/workspace.service';
 import {
   BadRequestException,
   ConflictException,
@@ -10,7 +9,6 @@ import { UpdateCompanyDto } from './dto/update-company.dto';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import {
   EntityRepository,
-  MikroORM,
   UniqueConstraintViolationException,
 } from '@mikro-orm/postgresql';
 import { Company } from './entities/company.entity';

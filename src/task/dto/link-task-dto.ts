@@ -1,5 +1,5 @@
 import { IsEnum, IsPositive } from 'class-validator';
-import { TASK_DEPENDENCY_TYPE } from '../entities/task-dependency.entity';
+import { TASK_DEPENDENCY_TYPE } from 'src/constants';
 
 export class LinkTaskDto {
   @IsPositive()

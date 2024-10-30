@@ -1,11 +1,7 @@
 import { Entity, ManyToOne, Property } from '@mikro-orm/core';
 import { User } from 'src/user/entities/user.entity';
 import { Workspace } from './workspace.entity';
-
-export enum UserRole {
-  ADMIN = 'ADMIN',
-  USER = 'USER',
-}
+import { UserRole } from 'src/constants';
 
 @Entity()
 export class UserWorkspace {

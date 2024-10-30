@@ -1,16 +1,14 @@
 import {
   IsDate,
-  IsDateString,
   IsEnum,
   IsNotEmpty,
   IsOptional,
   IsPositive,
   IsString,
   Length,
-  Validate,
   ValidateIf,
 } from 'class-validator';
-import { PRIORITY, TASK_STATUS, TASK_TYPE } from '../entities/task.entity';
+import { PRIORITY, TASK_TYPE } from 'src/constants';
 
 export class CreateTaskDto {
   @IsNotEmpty()

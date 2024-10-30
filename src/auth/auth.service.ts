@@ -7,7 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/user/entities/user.entity';
 import { Response } from 'express';
 import * as bcrypt from 'bcrypt';
-import { UserRole } from 'src/workspace/entities/user-workspace.entity';
+import { UserRole } from 'src/constants';
 
 @Injectable()
 export class AuthService {
@@ -42,6 +42,10 @@ export class AuthService {
       user,
     );
 
+    // just for testing purposes and will be removed later
+    if (registerDto.email === 'test_admin@test.com') {
+      user.role = UserRole.ADMIN;
+    }
     await this.userService.save(user);
     return this.generateResponse(user, res);
   }

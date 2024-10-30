@@ -1,4 +1,3 @@
-import { TSMigrationGenerator } from '@mikro-orm/migrations';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 
 export default {

@@ -4,7 +4,7 @@ import {
   ExecutionContext,
   Injectable,
 } from '@nestjs/common';
-import { UserRole } from 'src/workspace/entities/user-workspace.entity';
+import { UserRole } from 'src/constants';
 import { WorkspaceService } from 'src/workspace/workspace.service';
 
 @Injectable()

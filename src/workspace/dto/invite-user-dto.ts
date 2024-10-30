@@ -1,5 +1,5 @@
 import { IsEmail, IsEnum } from 'class-validator';
-import { UserRole } from '../entities/user-workspace.entity';
+import { UserRole } from 'src/constants';
 
 export class InviteUserDto {
   @IsEmail()
