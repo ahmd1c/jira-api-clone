@@ -1,6 +1,7 @@
+import { MikroOrmModuleOptions } from '@mikro-orm/nestjs';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 
-export default {
+const config: MikroOrmModuleOptions = {
   host: process.env.DB_HOST,
   port: parseInt(process.env.DB_PORT),
   user: process.env.DB_USER,
@@ -14,6 +15,9 @@ export default {
   autoLoadEntities: true,
   migrations: {
     path: 'dist/src/migrations/',
+    glob: '!(*.d).{js,ts}',
     pathTs: 'src/migrations/',
   },
 };
+
+export default config;

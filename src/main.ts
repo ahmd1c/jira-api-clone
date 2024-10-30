@@ -1,4 +1,3 @@
-declare const module: any;
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { JwtGuard } from './auth/guards/jwt-guard';
@@ -18,9 +17,5 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe(validatorConfig));
   app.useGlobalFilters(new UniqueConstraintExceptionFilter());
   await app.listen(3000);
-  if (module.hot) {
-    module.hot.accept();
-    module.hot.dispose(() => app.close());
-  }
 }
 bootstrap();

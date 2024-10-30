@@ -1,6 +1,6 @@
 import { Migration } from '@mikro-orm/migrations';
 
-export class Migration20241029095027 extends Migration {
+export class Migration20241030141310 extends Migration {
 
   override async up(): Promise<void> {
     this.addSql(`create table "user" ("id" serial primary key, "created_at" timestamptz not null, "updated_at" timestamptz not null default CURRENT_TIMESTAMP, "name" varchar(255) not null, "email" varchar(255) not null, "password" varchar(255) not null, "role" varchar(255) not null default 'USER');`);
@@ -19,7 +19,7 @@ export class Migration20241029095027 extends Migration {
     this.addSql(`create index "task_priority_index" on "task" ("priority");`);
 
     this.addSql(`create table "task_dependency" ("id" serial primary key, "created_at" timestamptz not null, "updated_at" timestamptz not null default CURRENT_TIMESTAMP, "to_task_id" int not null, "from_task_id" int not null, "type" varchar(255) not null);`);
-    this.addSql(`alter table "task_dependency" add constraint "task_dependency_from_task_id_to_task_id_unique" unique ("from_task_id", "to_task_id");`);
+    this.addSql(`alter table "task_dependency" add constraint "task_dependency_from_task_id_to_task_id_type_unique" unique ("from_task_id", "to_task_id", "type");`);
 
     this.addSql(`alter table "company" add constraint "company_owner_id_foreign" foreign key ("owner_id") references "user" ("id") on update cascade on delete cascade;`);
 
