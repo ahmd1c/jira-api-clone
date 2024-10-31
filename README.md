@@ -41,7 +41,7 @@ $ npm run start:prod
 
 # Authorization :
 
-**`cookie attached jwt token` that is generated after successfull login or registration and is sent with all subsequent reuests until expired**
+**`Cookie attached jwt token` that is generated after successfull login or registration and is sent with all subsequent requests until expired**
 
 <br>
 

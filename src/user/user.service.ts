@@ -68,7 +68,7 @@ export class UserService {
     );
 
     if (userWorkspaceExists) {
-      throw new BadRequestException('User already exists in workspace!');
+      throw new ConflictException('User already exists in workspace!');
     }
 
     const userWorkspace = this.workspaceService.addUser(workspace, user, role);
