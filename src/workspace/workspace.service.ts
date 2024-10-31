@@ -1,8 +1,10 @@
 import { JwtService } from '@nestjs/jwt';
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { WorkspaceDto } from './dto/workspace.dto';
 import { EntityRepository } from '@mikro-orm/postgresql';
@@ -62,6 +64,8 @@ export class WorkspaceService {
   }
 
   async inviteUser(inviteUserDto: InviteUserDto, workspaceId: number) {
+    // will throw not found error if workspace not found
+    const workspace = await this.findOne(workspaceId);
     const inviteToken = await this.jwtService.signAsync(
       { ...inviteUserDto, workspaceId },
       {
@@ -81,7 +85,7 @@ export class WorkspaceService {
     user: RequestUser,
   ) {
     if (!userId || isNaN(userId)) {
-      throw new BadRequestException('User id is required');
+      throw new BadRequestException('Invalid user id');
     }
 
     const userWorkspace = await this.getWorkspaceUser(workspaceId, userId);
@@ -102,7 +106,7 @@ export class WorkspaceService {
       }
 
       if (!companyOwner || companyOwner.id !== user.id) {
-        throw new BadRequestException(
+        throw new ForbiddenException(
           'Only company owner can change admin role',
         );
       }
@@ -133,7 +137,7 @@ export class WorkspaceService {
       }
 
       if (!companyOwner || companyOwner.id !== user.id) {
-        throw new BadRequestException('Only company owner can remove admin');
+        throw new ForbiddenException('Only company owner can remove admin');
       }
     }
 

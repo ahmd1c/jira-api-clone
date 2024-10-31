@@ -12,6 +12,7 @@ import {
   HttpCode,
   Query,
   BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { WorkspaceService } from './workspace.service';
 import { WorkspaceDto } from './dto/workspace.dto';
@@ -62,6 +63,7 @@ export class WorkspaceController {
     @Body() workspaceDto: WorkspaceDto,
   ) {
     const result = this.workspaceService.update(+workspaceId, workspaceDto);
+    if (!result) throw new NotFoundException('Workspace not found');
     return {
       message: result
         ? 'Workspace updated successfully'
@@ -74,6 +76,7 @@ export class WorkspaceController {
   @Delete(':workspaceId')
   remove(@Param('workspaceId') workspaceId: string) {
     const result = this.workspaceService.remove(+workspaceId);
+    if (!result) throw new NotFoundException('Workspace not found');
     return {
       message: result
         ? 'Workspace deleted successfully'
@@ -84,8 +87,8 @@ export class WorkspaceController {
 
   @UseGuards(WorkspaceGuard)
   @Get(':workspaceId/users')
-  getWorkspaceUsers(@Param('workspaceId') workspaceId: string) {
-    return this.workspaceService.getWorkspaceUsers(+workspaceId);
+  getWorkspaceUsers(@Param('workspaceId' , ParseIntPipe) workspaceId: number) {
+    return this.workspaceService.getWorkspaceUsers(workspaceId);
   }
 
   @UseGuards(WorkspaceGuard, WorkspaceAdminGuard)
@@ -93,11 +96,11 @@ export class WorkspaceController {
   @HttpCode(200)
   async addUserToWorkspace(
     @Body() inviteUserDto: InviteUserDto,
-    @Param('workspaceId') workspaceId: string,
+    @Param('workspaceId' , ParseIntPipe) workspaceId: number,
   ) {
     const token = await this.workspaceService.inviteUser(
       inviteUserDto,
-      +workspaceId,
+      workspaceId,
     );
     return { token };
   }
@@ -105,13 +108,13 @@ export class WorkspaceController {
   @UseGuards(WorkspaceGuard, WorkspaceAdminGuard)
   @Delete(':workspaceId/users/:userId')
   async removeUser(
-    @Param('workspaceId') workspaceId: string,
-    @Param('userId') userId: string,
+    @Param('workspaceId' , ParseIntPipe) workspaceId: number,
+    @Param('userId' , ParseIntPipe) userId: number,
     @User() user,
   ) {
     const result = await this.workspaceService.removeUser(
-      +workspaceId,
-      +userId,
+      workspaceId,
+      userId,
       user,
     );
     return {
@@ -132,13 +135,13 @@ export class WorkspaceController {
       }),
     )
     newRole: UserRole,
-    @Param('workspaceId') workspaceId: string,
-    @Param('userId') userId: string,
+    @Param('workspaceId' , ParseIntPipe) workspaceId: number,
+    @Param('userId' , ParseIntPipe) userId: number,
     @User() user,
   ) {
     const result = await this.workspaceService.changeUserRole(
-      +workspaceId,
-      +userId,
+      workspaceId,
+      userId,
       newRole,
       user,
     );
