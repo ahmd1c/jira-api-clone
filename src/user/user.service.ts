@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   forwardRef,
   Inject,
   Injectable,
@@ -33,7 +34,7 @@ export class UserService {
       { fields: ['id'] },
     );
     if (userExists) {
-      throw new BadRequestException('User already exists!');
+      throw new ConflictException('User already exists!');
     }
 
     return this.userRepo.create({

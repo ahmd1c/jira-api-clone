@@ -1,30 +1,20 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Overview
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This is jira api clone created by **nest** js framework , **mikro orm** and **postgres sql** .
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+# Application Entities hieararchy
 
-## Description
+![Entities hieararchy](./documentation/structure.png)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+<br>
+
+# Database ERD
+
+![jira api clone](./documentation/jira-clone-ERD.png)
+
+<br>
+
+# Getting started
 
 ## Installation
 
@@ -32,7 +22,7 @@
 $ npm install
 ```
 
-## Running the app
+# Running the app
 
 ```bash
 # development
@@ -42,32 +32,97 @@ $ npm run start
 $ npm run start:dev
 
 # production mode
+$ npm run build
 $ npm run start:prod
 ```
 
-## Test
+### Postman collection : [api collection](./documentation/Jira-api-clone.postman_collection.json)
 
-```bash
-# unit tests
-$ npm run test
+<br>
 
-# e2e tests
-$ npm run test:e2e
+# Authorization :
 
-# test coverage
-$ npm run test:cov
+**`cookie attached jwt token` that is generated after successfull login or registration and is sent with all subsequent reuests until expired**
+
+<br>
+
+# Endpoints :
+
+## Auth :
+
+### Register a New User
+
+Registers a new user in the system, allowing either regular registration or via an invitation link.
+
+- **URL**: `/auth/register`
+- **Method**: `POST`
+- **Access**: Public
+- **Request Body**:
+
+  - **name** (string, required): The user's full name (3-50 characters).
+    
+  - **email** (string, required if not using an invite token): The user's email (8-50 characters).(if sent with invite token then must be the correct email to which invitation sent)
+
+  - **password** (string, required): Password for the account (8-30 characters).
+
+  - **companyName** (string, optional): Company name associated with the user, required if not using an invite token. (will be ignored if sent with invite token)
+  - **inviteToken** (string, optional): JWT token if the user is joining via an invitation.
+
+- **Responses**:
+
+  - **201 Created**: Successfully registered a new user.
+  - **400 Bad Request**: Invalid input data or mismatched invite token email.
+  - **409 Conflict**: Email already exists.
+
+**Example Request**:
+
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com", // test_admin@test.com if you want to use the admin role
+  "password": "password123",
+  "companyName": "ExampleCompany"
+}
 ```
 
-## Support
+<br>
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Login User
 
-## Stay in touch
+Email and password based authentication
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- **URL**: `/auth/login`
+- **Method**: `POST`
+- **Access**: Public
+- **Request Body**:
 
-## License
+  - **email** (string, required): The user's email.
+  - **password** (string, required): The user's password.
 
-Nest is [MIT licensed](LICENSE).
+- **Responses**:
+
+  - **200 OK**: Successfully logged in the user.
+  - **401 Unauthorized**: Incorrect email or password.
+
+**Example Request**:
+
+```json
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
+
+<br>
+
+### Logout User
+
+Logs out the user by clearing the authentication token.
+
+- **URL**: `auth/logout`
+- **Method**: `POST`
+- **Access**: Authenticated
+
+**Response**:
+
+- **200 OK**: Successfully logged out.
