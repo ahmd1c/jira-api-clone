@@ -362,7 +362,334 @@ Removes a user from a workspace. only **workspace admin** can remove user. and o
 
 <br>
 
-<!-- ## Task API
+## Task API
 
-The Task API provides endpoints for managing tasks, including creating, updating, linking task to another task creating dependencies between tasks , assigning tasks to users, deleting tasks and more. -->
+The Task API provides endpoints for managing tasks, including creating, updating, linking task to another task creating dependencies between tasks , assigning tasks to users, deleting tasks and more.
+
+## Endpoints
+
+### 1. Create Task
+Creates a new task in a workspace.
+
+- **URL**: `/workspaces/:workspaceId/tasks`
+- **Method**: `POST`
+- **Access**: `Workspace member`
+
+**Request Body**:
+```json
+{
+  "title": "Test Task",
+  "description": "This is a test task",
+  "deadline": "2024-10-25",
+  "priority": "MEDIUM", // "priority must be one of the following values: HIGH, MEDIUM, LOW"
+  "assigneeId": 3,
+  "parentId" : 2,
+  "type": "TASK" // IF parentId is present TYPE WILL BE SUB TASK AUTOMATICALLY .
+
+  // "type must be one of the following values: TASK, SUB_TASK , BUG"
+}
+```
+
+**Responses**:
+- **201 Created** : Successfully created the task.
+- **400 Bad Request**: Invalid input data.
+- **400 Bad Request**: Parent task is already done.
+- **400 Bad Request**: sub task cannot be parent task.
+- **404 Not Found**: Parent task not found.
+- **404 Not Found**: Assignee not found in workspace.
+- **401 Unauthorized**: Only workspace member can create tasks in workspace.
+- **401 Unauthorized**: Only workspace Owner can assign tasks to admin
+
+
+### 2. Get All Tasks in Workspace
+Fetches all tasks in a workspace.
+
+- **URL**: `/workspaces/:workspaceId/tasks`
+- **Method**: `GET`
+- **Access**: `Workspace member`
+- **Query Parameters**: `limit`, `page`, `fields`
+
+**Responses**:
+- **200 OK**: Successfully fetched all tasks in the workspace.
+- **404 Not Found**: Tasks not found.
+
+### 3. Get Task details
+Fetches task details by ID.
+
+- **URL**: `/workspaces/:workspaceId/tasks/:taskId`
+- **Method**: `GET`
+- **Access**: `Workspace member`
+
+**Responses**:
+- **200 OK**: Successfully fetched the task details.
+- **404 Not Found**: Task not found.
+
+### 4. Update Task
+Updates a task in a workspace.
+
+- **URL**: `/workspaces/:workspaceId/tasks/:taskId`
+- **Method**: `PATCH`
+- **Access**: `Workspace member`
+
+**Request Body**:
+```json
+{
+  "title": "Test Task",
+  "description": "This is a test task",
+  "deadline": "2024-10-25",
+  "priority": "MEDIUM", // "priority must be one of the following values: HIGH, MEDIUM, LOW"
+  "type": "TASK" // "type must be one of the following values: TASK, SUB_TASK , BUG"
+}
+```
+
+**Responses**:
+- **200 OK**: Successfully updated the task.
+- **400 Bad Request**: Invalid input data.
+- **404 Not Found**: Task not found.
+- **401 Unauthorized**: Unauthorized to update this task.
+
+
+### 5. Delete Task
+Deletes a task from a workspace.
+
+- **URL**: `/workspaces/:workspaceId/tasks/:taskId`
+- **Method**: `DELETE`
+- **Access**: `Workspace member`
+
+**Responses**:
+- **200 OK**: Successfully deleted the task.
+- **404 Not Found**: Task not found.
+- **401 Unauthorized**: Unauthorized to delete this task.
+
+### 6. Assign Task to User
+Assigns a task to a user in a workspace. Only workspace admin can assign tasks to users.
+
+- **URL**: `/workspaces/:workspaceId/tasks/:taskId/assign`
+- **Method**: `PATCH`
+- **Access**: `Workspace Admin`
+
+**Request Body**:
+```json
+{
+  "assigneeId": 3
+}
+```
+
+**Responses**:
+- **200 OK**: Successfully assigned the task to the user.
+- **400 Bad Request**: Invalid input data.
+- **404 Not Found**: User not found.
+- **404 Not Found**: Task not found.
+- **401 Unauthorized**: Only workspace admin can assign tasks to users.
+- **401 Unauthorized**: Only workspace Owner can assign tasks to admin.
+  
+### 7. Change Task Status
+Changes the status of a task in a workspace.
+
+- **URL**: `/workspaces/:workspaceId/tasks/:taskId/status`
+- **Method**: `PATCH`
+- **Access**: `Workspace member`
+
+**Request Body**:
+```json
+{
+  "status": "DONE" // "status must be one of the following values: IN_PROGRESS, DONE, TO_DO"
+}
+```
+
+**Responses**:
+- **200 OK**: Successfully changed the task status.
+- **400 Bad Request**: Invalid input data.
+- **400 Bad Request**: Task is BLOCKED and cannot be DONE.
+- **400 Bad Request**: There are child tasks that must be done first.
+- **400 Bad Request**: There are high priority tasks that must be processed first.
+- **404 Not Found**: Task not found.
+- **401 Unauthorized**: Unauthorized to change this task status.
+
+### 8. Link Task to another Task
+Links a task to another task in a workspace.
+
+- **URL**: `/workspaces/:workspaceId/dependencies`
+- **Method**: `POST`
+- **Access**: `Workspace member`
+
+**Request Body**:
+```json
+{
+  "fromTaskId": 1,
+  "toTaskId": 2,
+  "type": "BLOCKS" // "type must be one of the following values: BLOCKS, CAUSES, RELATED_TO"
+}
+```
+
+**Responses**:
+- **200 OK**: Successfully linked the tasks.
+- **404 Not Found**: Tasks not found.
+- **401 Unauthorized**: Unauthorized to link tasks.
+- **400 Bad Request**: Invalid input data.
+- **400 Bad Request**: Parent task and child task already linked.
+- **400 Bad Request**: Cannot block high priority tasks.
+
+
+### 9. Update Tasks Dependency
+Updates the dependency of tasks in a workspace.
+
+- **URL**: `/workspaces/:workspaceId/dependencies/:id`
+- **Method**: `PATCH`
+- **Access**: `Workspace member`
+
+**Request Body**:
+```json
+{
+  "type": "BLOCKS" // "type must be one of the following values: BLOCKS, CAUSES, RELATED_TO"
+}
+```
+
+**Responses**:
+- **200 OK**: Successfully updated the task dependency.
+- **404 Not Found**: Task dependency not found.
+- **401 Unauthorized**: Unauthorized to update this task dependency.
+- **400 Bad Request**: Invalid input data.
+- **400 Bad Request**: Cannot block high priority tasks.
+
+### 10. Get All Tasks Dependencies in Workspace
+Fetches all tasks dependencies in a workspace.
+
+- **URL**: `/workspaces/:workspaceId/dependencies`
+- **Method**: `GET`
+- **Access**: `Workspace member`
+
+**Responses**:
+- **200 OK**: Successfully fetched the tasks dependencies.
+- **404 Not Found**: No tasks dependencies found.
+
+
+### 11. Get Task Dependency details
+Fetches details of a task dependency in a workspace.
+
+- **URL**: `/workspaces/:workspaceId/dependencies/:id`
+- **Method**: `GET`
+- **Access**: `Workspace member`
+
+**Responses**:
+- **200 OK**: Successfully fetched the task dependency details.
+- **404 Not Found**: Task dependency not found.
+
+### 12. Delete Tasks Dependency
+Deletes the dependency of tasks in a workspace.
+
+- **URL**: `/workspaces/:workspaceId/dependencies/:id`
+- **Method**: `DELETE`
+- **Access**: `Workspace member`
+
+**Responses**:
+- **200 OK**: Successfully deleted the task dependency.
+- **404 Not Found**: Task dependency not found.
+- **401 Unauthorized**: Unauthorized to delete this task dependency.
+
+<br>
+
+## User API
+for creating users please refer to Auth Register API
+
+### 1. Get All Users
+Fetches all users
+
+- **URL**: `/users`
+- **Method**: `GET`
+- **Access**: `ADMIN`
+- **Query Parameters**: `limit`, `page`, `fields`
+
+**Responses**:
+- **200 OK**: Successfully fetched the users.
+- **401 Unauthorized**
+
+### 2. Get User by ID
+Fetches a user by ID.
+
+- **URL**: `/users/:id`
+- **Method**: `GET`
+- **Access**: `ADMIN or USER himself`
+
+**Responses**:
+- **200 OK**: Successfully fetched the user.
+- **404 Not Found**: User not found.
+- **401 Unauthorized**
+
+
+### 3. Update User
+Updates a user.
+
+- **URL**: `/users/:id`
+- **Method**: `PATCH`
+- **Access**: `ADMIN or USER himself`
+
+**Request Body**:
+```json
+{
+  "name": "test user",
+  "email": "test_user@test.com",
+}
+```
+
+**Responses**:
+- **200 OK**: Successfully updated the user.
+- **404 Not Found**: User not found.
+- **401 Unauthorized**
+
+
+### 4. change password
+Changes the password of a user.
+
+- **URL**: `/users/:id/change-password`
+- **Method**: `PATCH`
+- **Access**: `ADMIN or USER himself`
+
+**Request Body**:
+```json
+{
+  "oldPassword": "old_password",
+  "newPassword": "new_password"
+}
+```
+
+**Responses**:
+- **200 OK**: Successfully changed the password of the user.
+- **404 Not Found**: User not found.
+- **400 Bad Request**: Old password is incorrect.
+- **401 Unauthorized**
+
+### 5. Accept workspace invitation
+Accepts a workspace invitation.
+
+- **URL**: `/users/:id/accept-invitation`
+- **Method**: `POST`
+- **Access**: `USER himself`
+
+**Request Body**:
+```json
+{
+  "inviteToken": "JWT valid invite_token"
+}
+```
+
+**Responses**:
+- **200 OK**: Successfully accepted the invitation.
+- **404 Not Found**: User not found.
+- **404 Not Found**: Workspace not found.
+- **400 Bad Request**: Invalid invite token.
+- **409 Conflict**: User already in this workspace.
+- **401 Unauthorized**
+
+### 6. Delete User
+Deletes a user.
+
+- **URL**: `/users/:id`
+- **Method**: `DELETE`
+- **Access**: `ADMIN`
+
+**Responses**:
+- **200 OK**: Successfully deleted the user.
+- **404 Not Found**: User not found.
+- **401 Unauthorized**
 

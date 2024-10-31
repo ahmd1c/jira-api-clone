@@ -48,19 +48,19 @@ export class TaskController {
   }
 
   @Get(':taskId')
-  async findOne(@Param('taskId') taskId: string) {
-    const task = await this.taskService.findOne(+taskId);
+  async findOne(@Param('taskId' , ParseIntPipe) taskId: number) {
+    const task = await this.taskService.findOne(taskId);
     if (!task) throw new NotFoundException('Task not found');
     return task;
   }
 
   @Patch(':taskId')
   async update(
-    @Param('taskId') taskId: string,
+    @Param('taskId' , ParseIntPipe) taskId: number,
     @Body() updateTaskDto: UpdateTaskDto,
     @User() user,
   ) {
-    const result = await this.taskService.update(+taskId, updateTaskDto, user);
+    const result = await this.taskService.update(taskId, updateTaskDto, user);
     return {
       message: result ? 'Task updated successfully' : 'Task not found',
       status: result ? 'success' : 'fail',
@@ -68,8 +68,8 @@ export class TaskController {
   }
 
   @Delete(':taskId')
-  async remove(@Param('taskId') taskId: string, @User() user) {
-    const result = await this.taskService.remove(+taskId, user);
+  async remove(@Param('taskId' , ParseIntPipe) taskId: number, @User() user) {
+    const result = await this.taskService.remove(taskId, user);
     return {
       message: result ? 'Task deleted successfully' : 'Task not found',
       status: result ? 'success' : 'fail',
@@ -96,13 +96,13 @@ export class TaskController {
 
   @Patch(':taskId/status')
   async changeStatus(
-    @Param('taskId') taskId: string,
+    @Param('taskId' , ParseIntPipe) taskId: number,
     @Body() taskStatusDto: TaskStatusDto,
     @User() user,
   ) {
     const result = await this.taskService.changeTaskStatus(
       taskStatusDto,
-      +taskId,
+      taskId,
       user,
     );
     return {

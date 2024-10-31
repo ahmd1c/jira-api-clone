@@ -343,7 +343,7 @@ export class TaskService {
     const highPriorityTasks = await this.getHighPriorityTasks(workspaceId);
     if (highPriorityTasks.length) {
       throw new BadRequestException(
-        'There are high priority tasks that must be done first',
+        'There are high priority tasks that must be processed first',
       );
     }
   }

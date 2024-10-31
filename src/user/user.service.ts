@@ -4,6 +4,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -54,12 +55,12 @@ export class UserService {
 
     const user = await this.userRepo.findOne({ email }, { fields: ['id'] });
     if (!user) {
-      throw new BadRequestException('User does not exist!');
+      throw new NotFoundException('User does not exist!');
     }
 
     const workspace = await this.workspaceService.findOne(workspaceId);
     if (!workspace) {
-      throw new BadRequestException('Workspace does not exist!');
+      throw new NotFoundException('Workspace does not exist!');
     }
 
     const userWorkspaceExists = await this.workspaceService.getWorkspaceUser(
@@ -98,7 +99,7 @@ export class UserService {
   async changePassword(id: number, changePasswordDto: ChangePasswordDto) {
     const user = await this.findOne({ id }, ['password']);
     if (!user) {
-      throw new BadRequestException('User does not exist');
+      throw new NotFoundException('User does not exist');
     }
 
     if (!(await bcrypt.compare(changePasswordDto.oldPassword, user.password))) {

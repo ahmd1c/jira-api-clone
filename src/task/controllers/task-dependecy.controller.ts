@@ -8,6 +8,7 @@ import {
   Get,
   Patch,
   Delete,
+  NotFoundException,
 } from '@nestjs/common';
 import { WorkspaceGuard } from 'src/auth/guards/workspace-guard';
 import { LinkTaskDto, UpdateLinkTaskDto } from '../dto/link-task-dto';
@@ -29,15 +30,19 @@ export class TaskDependecyController {
   }
 
   @Get()
-  getAllDependenciesInWorkspace(
+ async getAllDependenciesInWorkspace(
     @Param('workspaceId', ParseIntPipe) workspaceId: number,
   ) {
-    return this.taskService.getAllTaskLinksInWorkspace(workspaceId);
+    const result = await this.taskService.getAllTaskLinksInWorkspace(workspaceId);
+    if (!result.length) throw new NotFoundException('Link not found');
+    return result;
   }
 
   @Get(':id')
-  getDependency(@Param('id', ParseIntPipe) id: number) {
-    return this.taskService.getLinking(id);
+ async getDependency(@Param('id', ParseIntPipe) id: number) {
+    const result = await this.taskService.getLinking(id);
+    if (!result) throw new NotFoundException('Link not found');
+    return result;
   }
 
   @Patch(':id')

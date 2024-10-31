@@ -1,7 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -106,7 +105,7 @@ export class WorkspaceService {
       }
 
       if (!companyOwner || companyOwner.id !== user.id) {
-        throw new ForbiddenException(
+        throw new UnauthorizedException(
           'Only company owner can change admin role',
         );
       }
@@ -137,7 +136,7 @@ export class WorkspaceService {
       }
 
       if (!companyOwner || companyOwner.id !== user.id) {
-        throw new ForbiddenException('Only company owner can remove admin');
+        throw new UnauthorizedException('Only company owner can remove admin');
       }
     }
 

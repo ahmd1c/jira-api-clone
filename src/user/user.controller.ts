@@ -9,6 +9,8 @@ import {
   UseGuards,
   Query,
   Put,
+  ParseIntPipe,
+  NotFoundException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -39,14 +41,17 @@ export class UserController {
 
   @UseGuards(OwnerOrAdminGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne({ id: +id });
+  findOne(@Param('id' , ParseIntPipe) id: number) {
+    const user = this.userService.findOne({ id: id });
+    if (!user) throw new NotFoundException('User not found');
+    return user;
   }
 
   @UseGuards(OwnerOrAdminGuard)
   @Put(':id')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    const result = await this.userService.update(+id, updateUserDto);
+  async update(@Param('id' , ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto) {
+    const result = await this.userService.update(id, updateUserDto);
+    if (!result) throw new NotFoundException('User not found');
     return {
       message: result ? 'User deleted successfully' : 'User not found',
       status: result ? 'success' : 'fail',
@@ -70,8 +75,9 @@ export class UserController {
 
   @UseGuards(OwnerOrAdminGuard)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    const result = await this.userService.remove(+id);
+  async remove(@Param('id' , ParseIntPipe) id: number) {
+    const result = await this.userService.remove(id);
+    if (!result) throw new NotFoundException('User not found');
     return {
       message: result ? 'User deleted successfully' : 'User not found',
       status: result ? 'success' : 'fail',
