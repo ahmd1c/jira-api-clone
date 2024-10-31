@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
@@ -39,14 +40,18 @@ export class CompanyController {
 
   @Allowed(UserRole.ADMIN)
   @Get()
-  findAll() {
-    return this.companyService.findAll();
+ async findAll() {
+    const companies =await this.companyService.findAll();
+    if (!companies) throw new NotFoundException('Companies not found');
+    return companies;
   }
 
   @UseGuards(CompanyOwnerGuard)
   @Get(':companyId')
-  findOne(@Param('companyId') companyId: string) {
-    return this.companyService.findOne({ id: +companyId });
+ async findOne(@Param('companyId') companyId: string) {
+    const company = await this.companyService.findOne({ id: +companyId });
+    if (!company) throw new NotFoundException('Company not found');
+    return company;
   }
 
   @UseGuards(CompanyOwnerGuard)
@@ -59,6 +64,8 @@ export class CompanyController {
       +companyId,
       updateCompanyDto,
     );
+    
+    if(!result) throw new NotFoundException('Company not found');
     return {
       message: result ? 'Company updated successfully' : 'Company not found',
       status: result ? 'success' : 'fail',
@@ -69,6 +76,8 @@ export class CompanyController {
   @Delete(':companyId')
   async remove(@Param('companyId') companyId: string) {
     const result = await this.companyService.remove(+companyId);
+
+    if(!result) throw new NotFoundException('Company not found');
     return {
       message: result ? 'Company deleted successfully' : 'Company not found',
       status: result ? 'success' : 'fail',

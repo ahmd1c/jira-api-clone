@@ -45,7 +45,7 @@ $ npm run start:prod
 
 <br>
 
-# Endpoints :
+# API documentatoin :
 
 ## Auth :
 
@@ -125,3 +125,89 @@ Logs out the user by clearing the authentication token.
 **Response**:
 
 - **200 OK**: Successfully logged out.
+
+<br>
+
+##  Company API
+
+The Company API provides endpoints for managing company records, including creating, updating, and deleting companies. Only **ADMIN** can view all companies, while specific actions are restricted to the company owner.
+
+## Endpoints
+
+### 1. Create Company
+Creates a new company and assigns the user an initial default workspace 
+- **URL**: `/companies`
+- **Method**: `POST`
+- **Access**: `Authenticated users`
+
+**Request Body**:  
+```json
+{
+  "name": "CompanyName",
+  "ownerId": 1
+}
+```
+
+**Responses**:
+- **201 Created** : Successfully created the company and assigned the user an initial default workspace.
+- **403 Forbidden**: User is not authorized to create a company.
+- **404 Not Found**: User not found.
+- **409 Conflict**: Company with the same name already exists.
+- **409 Conflict**: User already has a company.
+
+### 2. Get All Companies
+Fetches all registered companies.
+
+- **URL**: `/companies`
+- **Method**: `POST`
+- **Access**: `ADMIN`
+
+**Responses**:
+- **200 OK**: Successfully fetched all companies.
+- **404 Not Found**: No companies found.
+
+
+### 3. Get Company
+Fetches a company by ID.
+
+- **URL**: `/companies/:companyId`
+- **Method**: `GET`
+- **Access**: `Company owner or ADMIN`
+
+**Responses**:
+- **200 OK**: Successfully fetched the company.
+- **404 Not Found**: Company not found.
+
+### 4. Update Company
+Updates a company by ID.
+
+- **URL**: `/companies/:companyId`
+- **Method**: `PATCH`
+- **Access**: `Company owner or ADMIN`
+
+**Request Body**:
+
+```json
+{
+  "name": "UpdatedCompanyName"
+}
+```
+
+**Responses**:
+- **200 OK**: Successfully updated the company.
+- **404 Not Found**: Company not found
+- **409 Conflict**: Company with the same name already exists.
+
+### 5. Delete Company
+Deletes a company by ID.
+
+- **URL**: `/companies/:companyId`
+- **Method**: `DELETE`
+- **Access**: `Company owner or ADMIN`
+
+**Responses**:
+- **200 OK**: Successfully deleted the company.
+- **404 Not Found**: Company not found.
+
+
+

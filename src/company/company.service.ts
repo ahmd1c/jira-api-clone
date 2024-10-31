@@ -3,6 +3,7 @@ import {
   ConflictException,
   HttpException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
@@ -27,7 +28,7 @@ export class CompanyService {
     const { name, ownerId, user } = createCompanyDto;
     const company = await this.findOne({ name: createCompanyDto.name }, ['id']);
     if (company) {
-      throw new BadRequestException('Company already exists');
+      throw new ConflictException('Company already exists');
     }
 
     // this to handle 2 possible cases either creating the company in registration(user)
@@ -40,10 +41,10 @@ export class CompanyService {
       ]);
       console.log(userExist);
 
-      if (!userExist) throw new BadRequestException('User does not exist');
+      if (!userExist) throw new NotFoundException('User does not exist');
 
       if (userExist.company?.id) {
-        throw new BadRequestException('User already has a company');
+        throw new ConflictException('User already has a company');
       }
       owner = userExist;
     }
@@ -67,15 +68,7 @@ export class CompanyService {
   }
 
   async update(id: number, updateCompanyDto: UpdateCompanyDto) {
-    try {
-      return await this.companyRepo.nativeUpdate(id, updateCompanyDto);
-    } catch (err) {
-      if (err instanceof UniqueConstraintViolationException) {
-        throw new ConflictException('Company with this name already exists');
-      } else {
-        throw new HttpException('Internal server error', 500);
-      }
-    }
+    return await this.companyRepo.nativeUpdate(id, updateCompanyDto);
   }
 
   remove(id: number) {
