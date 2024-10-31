@@ -1,0 +1,1126 @@
+{
+	"info": {
+		"_postman_id": "42e867b8-9d1f-4660-9e4d-6ca5130007ae",
+		"name": "Jira-api-clone",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30818582"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "register without invitation",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"test user\",\r\n    \"email\" : \"test_user@test.com\", // use \"test_admin@test.com\" for admin role\r\n    \"password\" : \"test12345\",\r\n    \"companyName\" : \"user test\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/auth/register",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "register with invitation",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"test Jira\",\r\n    \"email\" : \"test_invite@test.com\", // IF PASSING JWT AND THIS EMAIL NOT MATCHES THE INVITED EMAIL ERROR WILL BE RETURN\r\n    \"password\" : \"test12345\",\r\n    \"companyName\" : \"jira clone\", // if passing companyName with inviteToken companyName will be ignored\r\n    \"inviteToken\" : \"\" // jwt token from worksapces folder invite user request\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/auth/register",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\" : \"test_admin@test.com\", // ADMIN\r\n    // \"email\" : \"test_invite@test.com\", // INVITE USER TO ADMIN WORKSPACE from workspace folder invite user reqest\r\n    // \"email\": \"test_user@test.com\", // USER\r\n    \"password\" : \"test12345\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/auth/login",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/auth/logout",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Companies",
+			"item": [
+				{
+					"name": "create company",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"jira clone3\", // name is unique across database\r\n    \"ownerId\" : 1  // user id\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/companies",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"companies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all companies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/companies",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"companies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get company",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/companies/:companyId",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"companies",
+								":companyId"
+							],
+							"variable": [
+								{
+									"key": "companyId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update company",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"jira jira2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/companies/:companyId",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"companies",
+								":companyId"
+							],
+							"variable": [
+								{
+									"key": "companyId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete company",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/companies/:companyId",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"companies",
+								":companyId"
+							],
+							"variable": [
+								{
+									"key": "companyId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Workspaces",
+			"item": [
+				{
+					"name": "get company workspaces",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/workspaces?companyId=3",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"workspaces"
+							],
+							"query": [
+								{
+									"key": "companyId",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add workspace to company",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"new workspace3\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/workspaces?companyId=3",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"workspaces"
+							],
+							"query": [
+								{
+									"key": "companyId",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update workspace",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"hello jira\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/workspaces/:workspaceId?companyId=3",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"workspaces",
+								":workspaceId"
+							],
+							"query": [
+								{
+									"key": "companyId",
+									"value": "3"
+								}
+							],
+							"variable": [
+								{
+									"key": "workspaceId",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete workspace",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/workspaces/:workspaceId?companyId=3",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"workspaces",
+								":workspaceId"
+							],
+							"query": [
+								{
+									"key": "companyId",
+									"value": "3"
+								}
+							],
+							"variable": [
+								{
+									"key": "workspaceId",
+									"value": "4"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "remove user form workspace",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/workspaces/:workspaceId/users/:userId",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"workspaces",
+								":workspaceId",
+								"users",
+								":userId"
+							],
+							"variable": [
+								{
+									"key": "workspaceId",
+									"value": "3"
+								},
+								{
+									"key": "userId",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "change user role in workspace",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"newRole\" : \"ADMIN\" // USER OR ADMIN\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/workspaces/:workspaceId/users/:userId/change-role",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"workspaces",
+								":workspaceId",
+								"users",
+								":userId",
+								"change-role"
+							],
+							"variable": [
+								{
+									"key": "workspaceId",
+									"value": "3"
+								},
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get workspace users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/workspaces/:workspaceId/users",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"workspaces",
+								":workspaceId",
+								"users"
+							],
+							"variable": [
+								{
+									"key": "workspaceId",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "invite user to workspace",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\" : \"test_invite@gmail.com\",\r\n    \"role\" : \"USER\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/workspaces/:workspaceId/users/invite",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"workspaces",
+								":workspaceId",
+								"users",
+								"invite"
+							],
+							"variable": [
+								{
+									"key": "workspaceId",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tasks",
+			"item": [
+				{
+					"name": "get all tasks in workspace",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/workspaces/:workspaceId/tasks",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"workspaces",
+								":workspaceId",
+								"tasks"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "fields",
+									"value": "title,id,workspace,...",
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "workspaceId",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create task",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"third task\",\r\n    \"description\": \"third task is always nice\",\r\n    \"deadline\": \"2024-10-25\",\r\n    \"priority\": \"MEDIUM\", // \"priority must be one of the following values: HIGH, MEDIUM, LOW\"\r\n    \"assigneeId\": 3,\r\n    \"parentId\" : 2,\r\n    \"type\": \"TASK\" // IF parentId is present TYPE WILL BE SUB TASK AUTOMATICALLY\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/workspaces/:workspaceId/tasks",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"workspaces",
+								":workspaceId",
+								"tasks"
+							],
+							"variable": [
+								{
+									"key": "workspaceId",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get task in workspace",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/workspaces/:workspaceId/tasks/:taskId",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"workspaces",
+								":workspaceId",
+								"tasks",
+								":taskId"
+							],
+							"variable": [
+								{
+									"key": "workspaceId",
+									"value": "3"
+								},
+								{
+									"key": "taskId",
+									"value": "11"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update task",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"parent task\",\r\n    \"description\": \"parent task is always nice\",\r\n    \"deadline\": \"2024-10-25\",\r\n    \"priority\": \"MEDIUM\",\r\n    \"type\": \"TASK\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/workspaces/:workspaceId/tasks/:taskId",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"workspaces",
+								":workspaceId",
+								"tasks",
+								":taskId"
+							],
+							"variable": [
+								{
+									"key": "workspaceId",
+									"value": "3"
+								},
+								{
+									"key": "taskId",
+									"value": "11"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete task",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/workspaces/:workspaceId/tasks/:taskId",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"workspaces",
+								":workspaceId",
+								"tasks",
+								":taskId"
+							],
+							"variable": [
+								{
+									"key": "workspaceId",
+									"value": "3"
+								},
+								{
+									"key": "taskId",
+									"value": "9"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "assign task to user",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"assigneeId\" : 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/workspaces/:workspaceId/tasks/:taskId/assign",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"workspaces",
+								":workspaceId",
+								"tasks",
+								":taskId",
+								"assign"
+							],
+							"variable": [
+								{
+									"key": "workspaceId",
+									"value": "3"
+								},
+								{
+									"key": "taskId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "change task status",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\" : \"IN_PROGRESS\" // HIGH || MEDUIM || LOW\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/workspaces/:workspaceId/tasks/:taskId/status",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"workspaces",
+								":workspaceId",
+								"tasks",
+								":taskId",
+								"status"
+							],
+							"variable": [
+								{
+									"key": "workspaceId",
+									"value": "3"
+								},
+								{
+									"key": "taskId",
+									"value": "11"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Task Dependencies",
+			"item": [
+				{
+					"name": "link tasks",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"fromTaskId\" : 2,\r\n    \"toTaskId\" : 11,\r\n    \"type\": \"BLOCKS\"   // BLOCKS || CAUSES || RELATED_TO \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/workspaces/:workspaceId/dependencies",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"workspaces",
+								":workspaceId",
+								"dependencies"
+							],
+							"variable": [
+								{
+									"key": "workspaceId",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all dependencies in workspace",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/workspaces/:workspaceId/dependencies",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"workspaces",
+								":workspaceId",
+								"dependencies"
+							],
+							"variable": [
+								{
+									"key": "workspaceId",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get dependency",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/workspaces/:workspaceId/dependencies/:id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"workspaces",
+								":workspaceId",
+								"dependencies",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "workspaceId",
+									"value": "3"
+								},
+								{
+									"key": "id",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update task linking",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"type\" : \"BLOCKS\"   // BLOCKS || CAUSES || RELATED_TO \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/workspaces/:workspaceId/dependencies/:id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"workspaces",
+								":workspaceId",
+								"dependencies",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "workspaceId",
+									"value": "3"
+								},
+								{
+									"key": "id",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete task linking",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/workspaces/:workspaceId/dependencies/:id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"workspaces",
+								":workspaceId",
+								"dependencies",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "workspaceId",
+									"value": "3"
+								},
+								{
+									"key": "id",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "get all users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/users",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"users"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "fields",
+									"value": "email,createdAt,...",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get single user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/users/:id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"users",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update user",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/users/:id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"users",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "change password",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"oldPassword\" : \"test123456\",\r\n    \"newPassword\" : \"test12345\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/users/change-password",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"users",
+								"change-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete user",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{URL}}/users/:id",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"users",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "accept workspace invitation",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"inviteToken\" : \"\"  // jwt token from worksapces folder invite user request but for this request user must be registered before if not registered before , Auth folder register with invitation request is used\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/users/:id/accept-invitation",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"users",
+								":id",
+								"accept-invitation"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "URL",
+			"value": "http://localhost:3000/api/v1",
+			"type": "string"
+		}
+	]
+}
