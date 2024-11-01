@@ -8,11 +8,10 @@ const config: MikroOrmModuleOptions = {
   password: process.env.DB_PASSWORD,
   dbName: process.env.DB_NAME,
   driver: PostgreSqlDriver,
-  entities:
-    process.env.NODE_ENV === 'production' ? ['dist/**/*.entity.js'] : [],
+  entities: ['dist/**/*.entity.js'] ,
   entitiesTs: ['src/**/*.entity.ts'],
   debug: true,
-  autoLoadEntities: true,
+  // autoLoadEntities: process.env.NODE_ENV === 'production' ? false : true,
   migrations: {
     path: 'dist/src/migrations/',
     glob: '!(*.d).{js,ts}',
