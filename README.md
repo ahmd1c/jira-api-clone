@@ -10,7 +10,7 @@ This is jira api clone created by **nest** js framework , **mikro orm** and **po
 
 # Database ERD
 
-![jira api clone](./documentation/jira-clone-ERD 2.png)
+![jira api clone](./documentation/jira-clone-ERD%202.png)
 
 <br>
 
